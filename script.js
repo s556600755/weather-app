@@ -4,7 +4,16 @@ const searchBtn = document.querySelector("#searchBtn");
 
 const weatherBox = document.querySelector("#weatherBox");
 
+const city = "Tainan";
+
+const apiKey = "eb813030715909e56055cfe899d7148d";
+
+const url =
+    `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+
 const weatherData = {
+
+
 
     台南: {
         temp: 30,
@@ -32,6 +41,8 @@ searchBtn.addEventListener("click", () => {
 
 async function searchWeather() {
 
+
+
     const city = cityInput.value.trim();
     if (!city) {
 
@@ -41,18 +52,34 @@ async function searchWeather() {
         return;
 
     }
-    weatherBox.innerHTML =
-        "<p>資料載入中...</p>";
-    await new Promise((resolve) => {
+    try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=eb813030715909e56055cfe899d7148d`);
 
-        setTimeout(resolve, 1000);
+        const data = await response.json();
 
-    });
+        console.log(data);
 
 
-    renderWeather(city)
+        weatherBox.innerHTML =
+            "<p>資料載入中...</p>";
+        await new Promise((resolve) => {
 
-    cityInput.value = ''
+            setTimeout(resolve, 1000);
+
+        });
+
+
+        renderWeather(data)
+
+        cityInput.value = ''
+    } catch (error) {
+        weatherBox.innerHTML =
+            "<p>取得資料失敗</p>";
+
+        console.error(error);
+    }
+
+
 
 }
 
@@ -61,10 +88,12 @@ async function searchWeather() {
 function renderWeather(city) {
 
     weatherBox.innerHTML = `
-    <h2>${city}</h2>
+    <h2>${city.name}</h2>
 
-    <p>溫度：${weatherData[city].temp}°C</p>
+    <p>溫度：${city.main.temp}°C</p>
 
-    <p>天氣：${weatherData[city].description}</p>
+    <p>天氣：${city.weather[0].description}</p>
+    <img src="https://openweathermap.org/img/wn/${city.weather[0].icon}@2x.png">
+    
   `;
 }
